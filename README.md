@@ -109,6 +109,73 @@ $ npm run test:cov
 
 */
 
+/* Logic Writing
+
+  Receving Data like email , password via url (request)- Next has a lot of decorator  we can use express js under the hood we can receive data by using (request) method provided by express 
+  ( @Post('signup')signup(@Req() req:request){console.log(req)} ) req has many methods like body , header and various things so that we can receive data.
+
+  This method of accessing the data (Request method provided by express) is not that clean Nest provide a DTO 
+
+  DTO - it is an object which pushes data from a request and we can define our object like it should have an email , password or whatever we like. To use dto we use @Body decorator like 
+  (signup(@Body() dto:(ObjectStructure_which we_define_in_our_dtoclass))) .
+
+  Shape of Dto class - We can define our all dto in a seprate dto file and export that though index.ts file .We create class of our required Dto and then export it see (src/auth/dto) Barren export method
+  
+  Validation of correct email and password - What if email is not given by user or validation is not done by them then we have to include a lot of if and else statement we can use class transformer and class validator to acheive this fumctionality 
+
+  Pipes - Pipes are just function which transform your data .if we have a string "1" but we have to use 1 as a number then to deal with it pipe's come in handy pipes has two use cases : 
+  1- transformation :transform input data to the desired form (e.g., from string to integer) 
+  2- validation: evaluate input data and if valid, simply pass it through unchanged; otherwise, throw an exception
+  (npm i --save class-validator class-transformer) use this cmd to install class validator and decorator then
+  we go to our dto file and add @IsNotEmpty @IsEmail .... to check whether the input format is correct or not then we tell main.ts file that we are using pipes by adding (app.useGlobalPipes(new ValidationPipe())) just before app.listen(3000)
+  WHAT IF SOMEONE HAS FOUND A VULNARBILITY AND THEY TRY TO INJECT A VARIABLE ? 
+  - just add  whiteList:true in app.useGlobalPipes(new ValidationPipe({whitelist:true}) and it will strip out all the unwanted variable
+
+// Now we can run our business logic assuring that the data received is correct
+
+  HASHING OF PASSWORD (AARGON)
+  we can install aargon2 a library which convert a string to hash then we can write logic of signup
+
+// Generate password hash
+                const hash =await argon.hash(dto.password)
+        
+// Save the new user in the db
+                const user = await this.prisma.user.create({
+                        data:{
+                               email:dto.email,
+                               hash,
+                              },
+                        });
+        
+// return the saved user
+            return user;
+
+// Now the user will be created but the problem is that every type that particular user comes a nuser will be created beacuse we did'nt set our email as unique in prisma migration read prisma for query typing.
+   
+   - if we try to create a user with that particular mail it will give us the error now we have to deal with that error by using try catch block in our logic code (auth.service.ts)
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Question 
+
+
  - what is ORM and type ORM
  - what is GRPAHQL
