@@ -1,5 +1,6 @@
-import { Controller, Post } from "@nestjs/common";
+import { Body, Controller, Post, } from "@nestjs/common";
 import { AuthService } from "./auth.service";
+import { AuthDto } from "./dto";
 
 
 // Global route ..../auth
@@ -28,10 +29,10 @@ export class AuthController{
         // ..../auth/signup
 
         @Post('signup')
-        signup(){
+        signup(@Body() dto:AuthDto){
             
             // using function created in service class 
-            return this.authService.signup()
+            return this.authService.signup(dto)
         }
         @Post('signin')
         signin(){
