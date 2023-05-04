@@ -1,11 +1,14 @@
 import { Module } from "@nestjs/common";
+import { JwtModule } from "@nestjs/jwt";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
+import {  JwtStrategy} from "./strategy";
 
 // module decorator below
 @Module({
+    imports:[JwtModule.register({})],
     controllers : [AuthController],
-    providers :[AuthService],
+    providers :[AuthService,JwtStrategy],
 })
 
 // we need to export this class otherwise it will only be availble in this module

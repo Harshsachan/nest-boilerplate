@@ -11,12 +11,16 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
-const prisma_service_1 = require("../prisma/prisma.service");
-const argon = require("argon2");
+const jwt_1 = require("@nestjs/jwt");
 const client_1 = require("@prisma/client");
+const argon = require("argon2");
+const prisma_service_1 = require("../prisma/prisma.service");
+const config_1 = require("@nestjs/config");
 let AuthService = class AuthService {
-    constructor(prisma) {
+    constructor(prisma, jwt, config) {
         this.prisma = prisma;
+        this.jwt = jwt;
+        this.config = config;
     }
     async signup(dto) {
         const hash = await argon.hash(dto.password);
@@ -27,25 +31,48 @@ let AuthService = class AuthService {
                     hash,
                 },
             });
-            delete user.hash;
-            return { msg: "user created successfully" };
+            return this.signToken(user.id, user.email);
         }
         catch (error) {
-            if (error instanceof client_1.Prisma.PrismaClientKnownRequestError) {
-                if (error.code === 'P2002') {
-                    throw new common_1.ForbiddenException('Credentials taken');
+            if (error instanceof
+                client_1.Prisma.PrismaClientKnownRequestError) {
+                if (error.code === "P2002") {
+                    throw new common_1.ForbiddenException("Credentials taken");
                 }
             }
             throw error;
         }
     }
-    signin() {
-        return { masg: 'I have signed in' };
+    async signin(dto) {
+        const user = await this.prisma.user.findUnique({
+            where: {
+                email: dto.email,
+            },
+        });
+        if (!user)
+            throw new common_1.ForbiddenException("Email not found plz signup first");
+        const passMatches = await argon.verify(user.hash, dto.password);
+        if (!passMatches)
+            throw new common_1.ForbiddenException("Password incorrect plz Enter the correct password");
+        return this.signToken(user.id, user.email);
+    }
+    async signToken(userId, email) {
+        const payload = {
+            sub: userId,
+            email,
+        };
+        const secert = this.config.get('JWT_SECRET');
+        const token = await this.jwt.signAsync(payload, { secret: secert });
+        return {
+            access_token: token,
+        };
     }
 };
 AuthService = __decorate([
     (0, common_1.Injectable)({}),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        jwt_1.JwtService,
+        config_1.ConfigService])
 ], AuthService);
 exports.AuthService = AuthService;
 //# sourceMappingURL=auth.service.js.map

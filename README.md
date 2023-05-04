@@ -150,17 +150,116 @@ $ npm run test:cov
 // return the saved user
             return user;
 
-// Now the user will be created but the problem is that every type that particular user comes a nuser will be created beacuse we did'nt set our email as unique in prisma migration read prisma for query typing.
+// Now the user will be created but the problem is that every type that particular user comes a new user will be created beacuse we did'nt set our email as unique in prisma migration read prisma for query typing.
    
    - if we try to create a user with that particular mail it will give us the error now we have to deal with that error by using try catch block in our logic code (auth.service.ts)
 
+   - Then we create a signin funtionality with password matching and then catching all the sign in edge cases. 
+
+
+*/
+
+/*
+
+  We see that every time we run prisma migrate dev it creates a new migration so we will create a script that will apply pending migration to the database by using "prisma migrate deploy"
+
+*/
+
+/* Config module
+
+ This helps in creating .env file (yarn add @nestjs/config)
+ - Import Configmodule in app.module.js so that .env file can be used by all module availble in our project.
+ - We can't expose our database url string to our project that's why we use config module first we add config module to our project by adding cmd command then we import in app.module.js so that we can use in our whole project by adding ( ConfigModule.forRoot({isGlobal: true}) ) in import section of app.module.
+ - Then we add configService in pisma.service class so that we can use varaible to establish connection using config.get() function
+  - learn .env from yt
+
+*/
+
+
+// AUTHERISATION
+
+/* Allow server to track the user  
+  There are two ways to do that :- 
+    1- SESSION -
+    2- JWT (JSON WEB TOKEN) - 
+There are some routes like user/me which only be allowed to some user who are autheticated so thats why we are using Autehrisation
+Nest js has many already made module like any npm library
+
+Autherisation - We are doing autherisation using (PASSPORT.JS)
+We need to install few package - 
+1- yarn add @nestjs/passport passport 
+2- yarn add @nestjs/jwt passport-jwt
+3- yarn add -D  @types/passport-jwt (for typescript)
+
+Everything installed will be used in auth module nd service 
+
+Authorisation logic 
+- First we create a async-function signtoken which will create a signtoken with (email ,userId) it will create payload ( const payload = {sub: userId,email,}; ) sub is important for passport.js then we will create a keyword named secret which will help in creating a string and then we will create a token using payload and the secert keyword then we will return a accesstoken object 
+-------------------------------------------------------------
+async signToken(
+    userId: number,
+    email: string
+  ):Promise<{access_token:string}> 
+  {
+    const payload = {
+      sub: userId,
+      email,
+    };
+    const secert= this.config.get('JWT_SECRET')
+    const token= await this.jwt.signAsync(payload,{secret:secert})
+    return{
+          access_token:token,
+    };
+  }
+-------------------------------------------------------------
 
 
 */
 
 
+/* Strategy
+    Varyfying the access token is called Strategy
+    - We create a new folder named Strategy which will hold our startegy for different types of login like (facebook login , google login ....)
+    -Strategy folder containes a index.ts file which will export all the strategy that we create 
+    - jwt.strategy.js file contain the logic for checking the token then we import it in authmodule providers/services.
+    -------------------------------------------
+    export class JwtStrategy extends PassportStrategy(Strategy)
+      {
+          constructor(config: ConfigService)
+          {
+              super({ 
+                  jwtFromRequest :ExtractJwt.fromAuthHeaderAsBearerToken(),
+                  secretOrKey :config.get('JWT_SECRET'),
+              });
+          }
+      }
+    -------------------------------------------
+
+*/
+
+/* Nestjs Guards 
+   To protect our routes through some condition we use guards Guards have a single responsibility. They determine whether a given request will be handled by the route handler or not, depending on certain conditions (like permissions, roles, ACLs, etc.) present at run-time.
+
+  - we can create our own routes but in this case we will make routes which are already made n present in the library.
+
+  we will create a route with @Get/post method and before declaring its method we will add 
+   @UseGuards(AuthGuard('token_received')) 
+  token_received - the token name which will get from jwt strategy
+  then we will create a method that will receive request as an argument and that request will hold the request as an object (getMe(@Req() req: Request)) at req.user..
+  
+  - we can give data through validate(payload:any) but that will not consist of whole data we need to get data from prisma for doing that 
 
 
+*/
+
+
+/* Enhancment-  
+    Varioius method can be done to enchanse our request object (@Req() req: Request).
+
+*/
+
+/* @HttpCode - decorator 
+*/
 
 
 
