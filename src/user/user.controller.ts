@@ -12,7 +12,7 @@ export class UserController {
         // console.log({
         //      user: req.user
         //     });
-        console.log(req.user)
+        //console.log(req.user)
         return req.user
     }
 }

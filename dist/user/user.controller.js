@@ -17,7 +17,6 @@ const common_1 = require("@nestjs/common");
 const passport_1 = require("@nestjs/passport");
 let UserController = class UserController {
     getMe(req) {
-        console.log(req.user);
         return req.user;
     }
 };

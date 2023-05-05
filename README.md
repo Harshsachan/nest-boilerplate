@@ -262,10 +262,71 @@ async signToken(
 */
 
 
+/* Automation testing - 
+    every time going to postman nd then running a request giving them all possible cases is timetaking imagine having 10 api route. it will take a lot of time so to avoid that we use automated testing
+
+  There are 3 types of testing 
+  1- Unit testing (It takes up a function like 'signup' and test each and every test case like writing to database , argon hash - creating hash of the password and all other functionality which 'signup' function holds) . It takes a lot of time .Good for a big project
+
+  2- Integration testing (It takes variuos module together like auth , user and prisma it will mix all the module together and test that workflow) Break the app into segment's then test the app using a test database . Learn integration testing from yt
+
+  3- end to end testing (Full journey of the user which comes to the user) .
+
+  We will use end-to-end testing by a library called 'PACTUM JS' by default NEST uses 'SUPERTEST'
+ 
+*/
+
+/* Testing through PACTUM 
+  - We are using jest as our testing framework
+  - We will setup a test database for testing so that it won't effect our real DB while testing
 
 
 
 
+  Run automatically as they detect change in the code add this in package .json 
+  ------------------------------------------------ 
+    "test:e2e": "jest --watch --no-cache --config ./test/jest-e2e.json"
+  ------------------------------------------------
+  -change in docker-compose.yaml
+    change the name of db like(test-db) then change the port number also. then 
+
+  -change package.json
+   copy all the dev script and replace it with test
+   like
+   ---------------------------------------------------
+    "prisma:test:deploy": "dotenv -e .env.test -- prisma migrate deploy",
+    "db:test:rm": "docker compose rm test-db -s -f -v",
+    "db:test:up": "docker compose up test-db -d",
+    "db:test:restart": "yarn db:test:rm && yarn db:test:up && sleep 1 && yarn prisma:test:deploy",
+   ---------------------------------------------------
+
+
+  -change .env file 
+   .env file load's the database url to scehma.prisma but we wont be using same database url in testing so we will take help of (dotenv-cli) and create a new file named (.env.test) and add script's to our package.json (dotenv -e .env.test --) this will ask them to use database url which is present in .env.test not in .env
+      ------------------------------------------------
+      dotenv -e .env.test --
+      (in package.json)
+      "prisma:test:deploy": "dotenv -e .env.test -- prisma migrate deploy",
+      "test:e2e": "dotenv -e .env.test -- jest --watch --config ./test/jest-e2e.json"
+      -------------------------------------------------
+
+    - Creating a hook for test:e2e in package.json so that it restart the db before running test:e2e
+    ----------------------------------------------------
+     "pretest:e2e":"yarn db:test:restart",
+    ----------------------------------------------------
+
+    - Opening prisma studio for our test migration or test-db (npx dotenv -e .env.test -- prisma studio)
+    
+*/
+
+
+/* Testing logic
+  - Clean the database
+   Everytime we run our end to end test we make sure that our testing database in cleared test:e2e will make sure of it . It will restart migration everytime we run that .Even in the same session we need to clean our database we should avoid restarting docker container beacuse it takes time.
+   We want to tell prisma to clean db everytime we run our migration.
+
+
+*/
 
 
 
